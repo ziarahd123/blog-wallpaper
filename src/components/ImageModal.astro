@@ -1,0 +1,48 @@
+---
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<div
+  id={id}
+  class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center cursor-zoom-out"
+  onclick="this.classList.add('hidden')"
+>
+  <img
+    src=""
+    alt=""
+    class="max-h-[90vh] max-w-[90vw] object-contain"
+    onclick="event.stopPropagation()"
+  />
+</div>
+
+<script define:vars={{ id }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById(id);
+    const modalImg = modal.querySelector('img');
+    
+    function openModal(imgSrc, imgAlt) {
+      modalImg.src = imgSrc;
+      modalImg.alt = imgAlt;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+    
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+    
+    window.openImageModal = openModal;
+  });
+</script>

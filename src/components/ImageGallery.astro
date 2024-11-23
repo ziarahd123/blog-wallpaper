@@ -1,0 +1,103 @@
+---
+interface Image {
+  src: string;
+  alt: string;
+}
+
+interface Props {
+  images: Image[];
+}
+
+const { images } = Astro.props;
+const modalId = `image-modal-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+  {images.map((image) => (
+    <div class="relative">
+      <img
+        src={image.src}
+        alt={image.alt}
+        width="600"
+        height="400"
+        class="w-full h-64 object-cover rounded-lg shadow-md cursor-zoom-in transition-transform hover:scale-[1.02]"
+        loading="lazy"
+        decoding="async"
+        onclick={`showModal('${modalId}', '${image.src}', '${image.alt}')`}
+      />
+    </div>
+  ))}
+</div>
+
+<!-- Modal -->
+<div id={modalId} class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center">
+  <div class="relative max-w-[90vw] max-h-[90vh]">
+    <button 
+      onclick={`hideModal('${modalId}')`}
+      class="absolute -top-10 right-0 text-white hover:text-gray-300"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <img
+      src=""
+      alt=""
+      class="max-h-[90vh] max-w-[90vw] object-contain"
+    />
+  </div>
+</div>
+
+<script>
+  function showModal(modalId: string, imgSrc: string, imgAlt: string) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    const modalImg = modal.querySelector('img');
+    if (!modalImg) return;
+    
+    modalImg.src = imgSrc;
+    modalImg.alt = imgAlt;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideModal(modalId: string) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+
+  // Close on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.querySelector('[id^="image-modal-"]');
+      if (modal && !modal.classList.contains('hidden')) {
+        hideModal(modal.id);
+      }
+    }
+  });
+
+  // Close on click outside
+  document.addEventListener('click', (e) => {
+    const modal = document.querySelector('[id^="image-modal-"]:not(.hidden)');
+    if (modal && e.target === modal) {
+      hideModal(modal.id);
+    }
+  });
+
+  // Expose functions to window
+  window.showModal = showModal;
+  window.hideModal = hideModal;
+</script>
+
+<style>
+  .grid {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+</style>
